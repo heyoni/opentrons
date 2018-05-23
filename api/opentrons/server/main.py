@@ -212,4 +212,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    finally:
+        gpio.set_button_color('red')  # quitting unexpectedly!
