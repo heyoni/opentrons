@@ -7,6 +7,7 @@ import traceback
 from aiohttp import web
 from opentrons import robot
 from opentrons.api import MainRouter
+from opentrons.drivers.rpi_drivers import gpio
 from opentrons.server.rpc import Server
 from opentrons.server import endpoints as endp
 from opentrons.server.endpoints import (wifi, control, update)
@@ -201,8 +202,10 @@ def main():
     try:
         robot.connect()
         robot.cache_instrument_models()
+        gpio.set_button_color('blue')
     except Exception as e:
         log.exception("Error while connecting to motor-driver: {}".format(e))
+        gpio.set_button_color('red')
 
     web.run_app(init(), host=args.hostname, port=args.port, path=args.path)
     arg_parser.exit(message="Stopped\n")

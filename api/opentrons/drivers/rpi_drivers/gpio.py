@@ -50,6 +50,17 @@ INPUT_PINS = {
 
 _path_prefix = "/sys/class/gpio"
 
+BUTTON_COLORS = {
+    'off': {'red': False, 'green': False, 'blue': False},
+    'white': {'red': True, 'green': True, 'blue': True},
+    'red': {'red': True, 'green': False, 'blue': False},
+    'green': {'red': False, 'green': True, 'blue': False},
+    'blue': {'red': False, 'green': False, 'blue': True},
+    'yellow': {'red': True, 'green': True, 'blue': False},
+    'pink': {'red': True, 'green': False, 'blue': True},
+    'teal': {'red': False, 'green': True, 'blue': True}
+}
+
 
 def _enable_pin(pin, direction):
     """
@@ -137,6 +148,25 @@ def read(pin):
       GPIO board numbering (not physical pin numbering)
     """
     return _read_value("{0}/gpio{1}/value".format(_path_prefix, pin))
+
+
+def _set_button_light(red=False, green=False, blue=False):
+    color_pins = {
+        OUTPUT_PINS['RED_BUTTON']: red,
+        OUTPUT_PINS['GREEN_BUTTON']: green,
+        OUTPUT_PINS['BLUE_BUTTON']: blue
+    }
+    for pin, state in color_pins.items():
+        if state:
+            set_high(pin)
+        else:
+            set_low(pin)
+
+
+def set_button_color(color):
+    if color not in BUTTON_COLORS:
+        raise ValueError('Not a known button color: {}'.format(color))
+    _set_button_light(**BUTTON_COLORS[color])
 
 
 def initialize():

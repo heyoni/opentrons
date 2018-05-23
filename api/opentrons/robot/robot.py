@@ -11,6 +11,7 @@ from opentrons.containers import Container
 from opentrons.data_storage import database, old_container_loading,\
     database_migration
 from opentrons.drivers.smoothie_drivers import driver_3_0
+from opentrons.drivers.rpi_drivers import gpio
 from opentrons.robot.mover import Mover
 from opentrons.robot.robot_configs import load
 from opentrons.trackers import pose_tracker
@@ -298,16 +299,19 @@ class Robot(object):
             self.model_by_mount[mount] = self._driver.read_pipette_model(mount)
 
     def turn_on_button_light(self):
-        self._driver.turn_on_blue_button_light()
-
-    def turn_off_button_light(self):
-        self._driver.turn_off_button_light()
+        '''
+        This method is called by a script in the docker container,
+        so for backwards compatibility with old containers, this method is
+        staying and being used as on "on-boot/loading" color, or it can just
+        be ignored in the future
+        '''
+        gpio.set_button_color('white')  # white while the server is starting...
 
     def turn_on_rail_lights(self):
-        self._driver.turn_on_rail_lights()
+        gpio.set_high(gpio.OUTPUT_PINS['FRAME_LEDS'])
 
     def turn_off_rail_lights(self):
-        self._driver.turn_off_rail_lights()
+        gpio.set_low(gpio.OUTPUT_PINS['FRAME_LEDS'])
 
     def identify(self, seconds):
         """
@@ -315,9 +319,9 @@ class Robot(object):
         """
         from time import sleep
         for i in range(seconds):
-            self.turn_off_button_light()
+            gpio.set_button_color('off')
             sleep(0.25)
-            self.turn_on_button_light()
+            gpio.set_button_color('blue')
             sleep(0.25)
 
     def setup_gantry(self):

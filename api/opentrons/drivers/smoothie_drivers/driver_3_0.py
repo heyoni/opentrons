@@ -1224,34 +1224,6 @@ class SmoothieDriver_3_0_0:
         else:
             raise RuntimeError("Cant probe axis {}".format(axis))
 
-    # TODO (ben 20180320): we should probably move these to the gpio driver
-    def turn_on_blue_button_light(self):
-        self._set_button_light(blue=True)
-
-    def turn_on_red_button_light(self):
-        self._set_button_light(red=True)
-
-    def turn_off_button_light(self):
-        self._set_button_light(red=False, green=False, blue=False)
-
-    def _set_button_light(self, red=False, green=False, blue=False):
-        color_pins = {
-            gpio.OUTPUT_PINS['RED_BUTTON']: red,
-            gpio.OUTPUT_PINS['GREEN_BUTTON']: green,
-            gpio.OUTPUT_PINS['BLUE_BUTTON']: blue
-        }
-        for pin, state in color_pins.items():
-            if state:
-                gpio.set_high(pin)
-            else:
-                gpio.set_low(pin)
-
-    def turn_on_rail_lights(self):
-        gpio.set_high(gpio.OUTPUT_PINS['FRAME_LEDS'])
-
-    def turn_off_rail_lights(self):
-        gpio.set_low(gpio.OUTPUT_PINS['FRAME_LEDS'])
-
     def read_button(self):
         # button is normal-HIGH, so invert
         return not bool(gpio.read(gpio.INPUT_PINS['BUTTON_INPUT']))
